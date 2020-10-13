@@ -104,7 +104,10 @@ def index():
 @app.route('/venues')
 def venues():
   # TODO: replace with real venues data.
-  #       num_shows should be aggregated based on number of upcoming shows per venue.
+  # num_shows should be aggregated based on number of upcoming shows per venue.
+
+  data = Venue.query.order_by("id").all()
+  
   data=[{
     "city": "San Francisco",
     "state": "CA",
@@ -232,6 +235,7 @@ def show_venue(venue_id):
 
 @app.route('/venues/create', methods=['GET'])
 def create_venue_form():
+  # renders form. do not touch.
   form = VenueForm()
   return render_template('forms/new_venue.html', form=form)
 
@@ -260,18 +264,11 @@ def create_venue_submission():
       facebook_link = form.facebook_link.data,
     )
 
-    # MY TODO: Another way
-    '''
-    new_venue = Venue(
-        name = request.form['name'],
-        city = request.form['city'],
-        state = request.form['state'],
-        address = request.form['address'],
-        phone = request.form['phone'],
-        image_link=request.form['image_link'],
-        facebook_link = request.form['facebook_link']
-    )
-    '''
+    # form.name.data
+    # return a string
+    # form['name'], request.form['venue_id']
+    # return <wtforms.fields.StringField object at 0x827eccc>
+
     db.session.add(new_venue)
     db.session.commit()
 
@@ -305,6 +302,9 @@ def delete_venue(venue_id):
 @app.route('/artists')
 def artists():
   # TODO: replace with real data returned from querying the database
+
+  data = Artist.query.order_by("id").all()
+
   data=[{
     "id": 4,
     "name": "Guns N Petals",
@@ -315,6 +315,7 @@ def artists():
     "id": 6,
     "name": "The Wild Sax Band",
   }]
+  
   return render_template('pages/artists.html', artists=data)
 
 @app.route('/artists/search', methods=['POST'])
@@ -469,6 +470,7 @@ def edit_venue_submission(venue_id):
 
 @app.route('/artists/create', methods=['GET'])
 def create_artist_form():
+  # renders form. do not touch.
   form = ArtistForm()
   return render_template('forms/new_artist.html', form=form)
 
@@ -497,18 +499,10 @@ def create_artist_submission():
       facebook_link = form.facebook_link.data,
     )
 
-    # MY TODO: Another way
-    '''
-    new_venue = Venue(
-        name = request.form['name'],
-        city = request.form['city'],
-        state = request.form['state'],
-        phone = request.form['phone'],
-        genres = request.form['genres'],
-        image_link=request.form['image_link'],
-        facebook_link = request.form['facebook_link']
-    )
-    '''
+    # form.name.data
+    # return a string
+    # form['name'], request.form['venue_id']
+    # return <wtforms.fields.StringField object at 0x827eccc>
 
     db.session.add(new_artist)
     db.session.commit()
@@ -517,7 +511,8 @@ def create_artist_submission():
     flash('Artist ' + request.form['name'] + ' was successfully listed!')
 
   except:
-  # [DONE] TODO: on unsuccessful db insert, flash an error instead.
+    # [DONE] TODO: on unsuccessful db insert, flash an error instead.
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     print("except", file = sys.stderr)
     db.session.rollback()
     flash('An error occurred. Artist ' + request.form['name'] + ' could not be listed.')
@@ -536,7 +531,10 @@ def create_artist_submission():
 def shows():
   # displays list of shows at /shows
   # TODO: replace with real venues data.
-  #       num_shows should be aggregated based on number of upcoming shows per venue.
+  # num_shows should be aggregated based on number of upcoming shows per venue.
+  
+  data = Show.query.order_by("id").all()
+  
   data=[{
     "venue_id": 1,
     "venue_name": "The Musical Hop",
@@ -573,6 +571,7 @@ def shows():
     "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
     "start_time": "2035-04-15T20:00:00.000Z"
   }]
+  
   return render_template('pages/shows.html', shows=data)
 
 @app.route('/shows/create')
@@ -584,13 +583,45 @@ def create_shows():
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
-  # TODO: insert form data as a new Show record in the db, instead
+  
+  try:
+    # TODO: insert form data as a new Show record in the db, instead
+    # TODO: modify data to be the data object returned from db insertion
+    print("try", file = sys.stderr)
+    form = ShowForm()
 
-  # on successful db insert, flash success
-  flash('Show was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Show could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    # MY TODO: if not form.validate_on_submit():
+      #print("invalid form", file = sys.stderr)
+      #raise Exception("invalid data")
+
+    new_show = Show(
+      start_time = form.start_time.data,
+      artist_id = form.artist_id.data,
+      venue_id = form.venue_id.data,
+    )
+
+    # form.name.data
+    # return a string
+    # form['name'], request.form['venue_id']
+    # return <wtforms.fields.StringField object at 0x827eccc>
+    
+    db.session.add(new_show)
+    db.session.commit()
+
+    # on successful db insert, flash success
+    flash('Show was successfully listed!')
+
+  except:
+    # TODO: on unsuccessful db insert, flash an error instead.
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    print("except", file = sys.stderr)
+    db.session.rollback()
+    flash('An error occurred. Show could not be listed.')
+
+  finally:
+    print("finally", file = sys.stderr)
+    db.session.close()
+    
   return render_template('pages/home.html')
 
 @app.errorhandler(404)
