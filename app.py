@@ -50,7 +50,10 @@ class Venue(db.Model):
     shows = db.relationship('Show', backref='venue', lazy=True)
     seeking_talent = db.Column(db.Boolean)
     seeking_description = db.Column(db.String)
-    
+
+    def __repr__(self):
+        return f'<id: {self.id}, name: {self.name}, shows: {self.shows}>'
+
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 class Artist(db.Model):
@@ -70,6 +73,9 @@ class Artist(db.Model):
     seeking_venue = db.Column(db.Boolean)
     seeking_description = db.Column(db.String)
 
+    def __repr__(self):
+        return f'<id: {self.id}, name: {self.name}, shows: {self.shows}>'
+
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # [DONE] TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
@@ -80,6 +86,9 @@ class Show(db.Model):
     start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
     venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
+
+    def __repr__(self):
+        return f'<id: {self.id}, start: {self.start_time}, artist: {self.artist_id}, venue: {self.venue_id}>'
     
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -117,6 +126,7 @@ def venues():
 
   data = Venue.query.order_by("id").all()
   
+  '''
   data=[{
     "city": "San Francisco",
     "state": "CA",
@@ -138,6 +148,8 @@ def venues():
       "num_upcoming_shows": 0,
     }]
   }]
+  '''
+  
   return render_template('pages/venues.html', areas=data);
 
 @app.route('/venues/search', methods=['POST'])
@@ -314,6 +326,7 @@ def artists():
 
   data = Artist.query.order_by("id").all()
 
+  '''
   data=[{
     "id": 4,
     "name": "Guns N Petals",
@@ -324,6 +337,7 @@ def artists():
     "id": 6,
     "name": "The Wild Sax Band",
   }]
+  '''
   
   return render_template('pages/artists.html', artists=data)
 
