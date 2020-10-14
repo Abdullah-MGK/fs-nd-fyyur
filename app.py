@@ -120,8 +120,8 @@ def index():
 
 @app.route('/venues')
 def venues():
-  # TODO: replace with real venues data.
-  # num_shows should be aggregated based on number of upcoming shows per venue.
+  # [DONE] TODO: replace with real venues data.
+  # [DONE] num_shows should be aggregated based on number of upcoming shows per venue.
 
   #venue_groups = Venue.query.group_by(Venue.id, Venue.state, Venue.city).all()
   #print(venue_groups, file = sys.stderr)
@@ -350,6 +350,7 @@ def artists():
   # TODO: replace with real data returned from querying the database
 
   data = Artist.query.order_by("id").all()
+  print(data, file = sys.stderr)
 
   '''
   data=[{
@@ -383,8 +384,53 @@ def search_artists():
 
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
-  # shows the venue page with the given venue_id
-  # TODO: replace with real venue data from the venues table, using venue_id
+  # shows the artist page with the given artist_id
+
+  # [DONE] TODO: replace with real artist data from the artist table, using artist_id
+  artist = Artist.query.get(artist_id)
+  print(artist, file = sys.stderr)
+  
+  past_shows = []
+  upcoming_shows = []
+
+  for show in artist.shows:
+    print(show, file = sys.stderr)
+
+    show_data = {
+          "venue_id": show.venue_id,
+          "venue_name": show.venue.name,
+          "venue_image_link": show.venue.image_link,
+          "start_time": format_datetime(str(show.start_time))
+          }
+    
+    if show.start_time > datetime.now():
+      past_shows.append(show_data)
+    else:
+      upcoming_shows.append(show_data)
+  
+  print(past_shows, file = sys.stderr)
+  print(upcoming_shows, file = sys.stderr)
+  
+  data = {
+    "id": artist.id,
+    "name": artist.name,
+    "genres": artist.genres,
+    "city": artist.city,
+    "state": artist.state,
+    "phone": artist.phone,
+    "website": artist.website,
+    "facebook_link": artist.facebook_link,
+    "seeking_venue": artist.seeking_venue,
+    "seeking_description": artist.seeking_description,
+    "image_link": artist.image_link,
+    "past_shows": past_shows,
+    "upcoming_shows": upcoming_shows,
+    "past_shows_count": len(past_shows),
+    "upcoming_shows_count": len(upcoming_shows),
+  }
+
+
+  '''
   data1={
     "id": 4,
     "name": "Guns N Petals",
@@ -456,7 +502,10 @@ def show_artist(artist_id):
     "past_shows_count": 0,
     "upcoming_shows_count": 3,
   }
-  data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
+  '''
+  
+  #data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
+  
   return render_template('pages/show_artist.html', artist=data)
 
 #  Update
