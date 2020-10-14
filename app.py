@@ -115,7 +115,6 @@ app.jinja_env.filters['datetime'] = format_datetime
 def index():
   return render_template('pages/home.html')
 
-
 #  Venues
 #  ----------------------------------------------------------------
 
@@ -124,8 +123,34 @@ def venues():
   # TODO: replace with real venues data.
   # num_shows should be aggregated based on number of upcoming shows per venue.
 
-  data = Venue.query.order_by("id").all()
+  #venue_groups = Venue.query.group_by(Venue.id, Venue.state, Venue.city).all()
+  #print(venue_groups, file = sys.stderr)
+
+  #venues = Venue.query.order_by("id").all()
+  #print(venues, file = sys.stderr)
+
+  areas = Venue.query.with_entities(Venue.city, Venue.state).group_by('city', 'state').all()
+  print(areas, file = sys.stderr)
+  data = []
   
+  for area in areas:
+    venues_area = Venue.query.filter_by(state=area.state).filter_by(city=area.city).all()
+    venue_data = []
+    
+    for venue in venues_area:
+      venue_data.append({
+        "id": venue.id,
+        "name": venue.name, 
+        "num_upcoming_shows": len(Show.query.filter(Show.venue_id==1).filter(Show.start_time>datetime.now()).all())
+      })
+    
+    data.append({
+      "city": area.city,
+      "state": area.state, 
+      "venues": venue_data
+    })
+
+
   '''
   data=[{
     "city": "San Francisco",
