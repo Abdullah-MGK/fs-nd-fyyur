@@ -33,6 +33,9 @@ migrate = Migrate(app, db)
 # Models.
 #----------------------------------------------------------------------------#
 
+#  Venue
+#  ----------------------------------------------------------------
+
 class Venue(db.Model):
     __tablename__ = 'Venue'
 
@@ -56,6 +59,10 @@ class Venue(db.Model):
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
+
+#  Artist
+#  ----------------------------------------------------------------
+
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
@@ -77,6 +84,10 @@ class Artist(db.Model):
         return f'<id: {self.id}, name: {self.name}, shows: {self.shows}>'
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
+
+
+#  Show
+#  ----------------------------------------------------------------
 
 # [DONE] TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 class Show(db.Model):
@@ -111,27 +122,48 @@ app.jinja_env.filters['datetime'] = format_datetime
 # Controllers.
 #----------------------------------------------------------------------------#
 
+#  Home / Index
+#  ----------------------------------------------------------------
+
 @app.route('/')
 def index():
   return render_template('pages/home.html')
 
-#  Venues
+
+#  Show Venues
 #  ----------------------------------------------------------------
 
 @app.route('/venues')
 def venues():
   # [DONE] TODO: replace with real venues data.
-  # [DONE] num_shows should be aggregated based on number of upcoming shows per venue.
-
+  # num_shows should be aggregated based on number of upcoming shows per venue.
+  
   #venue_groups = Venue.query.group_by(Venue.id, Venue.state, Venue.city).all()
   #print(venue_groups, file = sys.stderr)
-
-  #venues = Venue.query.order_by("id").all()
+  
+  #venues = Venue.query.order_by("name").all()
   #print(venues, file = sys.stderr)
-
+  #then create a dictionary {city:state} and iterate on that dictionary to get the venues related to it from venues
+  
   areas = Venue.query.with_entities(Venue.city, Venue.state).group_by('city', 'state').all()
   print(areas, file = sys.stderr)
+  
   data = []
+
+  '''
+  inside the loop
+  for show in venue.shows:
+    print(show, file = sys.stderr)
+    if show.start_time > datetime.now():
+      upcoming_shows += 1
+  '''
+
+  '''
+  outside the loop
+  upcoming_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time > datetime.now()).all()
+    
+  print(upcoming_shows, file = sys.stderr)
+  '''
   
   for area in areas:
     venues_area = Venue.query.filter_by(state=area.state).filter_by(city=area.city).all()
@@ -141,6 +173,7 @@ def venues():
       venue_data.append({
         "id": venue.id,
         "name": venue.name, 
+        # MY TODO: Use for loop to count shows using if venue.shows.time > current
         "num_upcoming_shows": len(Show.query.filter(Show.venue_id==1).filter(Show.start_time>datetime.now()).all())
       })
     
@@ -149,38 +182,86 @@ def venues():
       "state": area.state, 
       "venues": venue_data
     })
-
-
-  '''
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
-  '''
   
-  return render_template('pages/venues.html', areas=data);
+  return render_template('pages/venues.html', areas=data)
+
+
+  #  View Venue
+#  ----------------------------------------------------------------
+
+@app.route('/venues/<int:venue_id>')
+def show_venue(venue_id):
+  # shows the venue page with the given venue_id
+
+  # TODO: replace with real venue data from the venues table, using venue_id
+  venue = Venue.query.get(venue_id)
+  print(venue, file = sys.stderr)
+
+  past_shows = []
+  upcoming_shows = []
+
+  for show in venue.shows:
+    print(show, file = sys.stderr)
+    
+    show_data = {
+      "artist_id": show.artist_id,
+      "artist_name": show.artist.name,
+      "artist_image_link": show.artist.image_link,
+      "start_time": format_datetime(str(show.start_time))
+    }
+    
+    if show.start_time > datetime.now():
+      upcoming_shows.append(show_data)
+    else:
+      past_shows.append(show_data)
+    
+
+    '''
+      outside the loop
+      upcoming_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time > datetime.now()).all()
+      past_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time < datetime.now()).all()
+    '''
+    '''
+      inside the loop
+      if show.start_time > datetime.now():
+        past_shows.append(show_data)
+      else:
+        upcoming_shows.append(show_data)
+    
+    print(past_shows, file = sys.stderr)
+    print(upcoming_shows, file = sys.stderr)
+    '''
+  
+  data = {
+    "id": venue.id,
+    "name": venue.name,
+    "genres": venue.genres,
+    "city": venue.city,
+    "state": venue.state,
+    "address": venue.address,
+    "phone": venue.phone,
+    "website": venue.website,
+    "facebook_link": venue.facebook_link,
+    "seeking_talent": venue.seeking_talent,
+    "seeking_description": venue.seeking_description,
+    "image_link": venue.image_link,
+    "past_shows": past_shows,
+    "upcoming_shows": upcoming_shows,
+    "past_shows_count": len(past_shows),
+    "upcoming_shows_count": len(upcoming_shows),
+  }
+  
+  #data = list(filter(lambda d: d['id'] == venue_id, [data1, data2, data3]))[0]
+  return render_template('pages/show_venue.html', venue=data)
+
+
+#  Search Venue
+#  ----------------------------------------------------------------
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-  # seach for Hop should return "The Musical Hop".
+  # search for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
   response={
     "count": 1,
@@ -334,6 +415,10 @@ def create_venue_submission():
   
   return render_template('pages/home.html')
 
+
+#  Delete Venue
+#  ----------------------------------------------------------------
+
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
   # TODO: Complete this endpoint for taking a venue_id, and using
@@ -345,25 +430,16 @@ def delete_venue(venue_id):
 
 #  Artists
 #  ----------------------------------------------------------------
+
 @app.route('/artists')
 def artists():
-  # TODO: replace with real data returned from querying the database
-
-  data = Artist.query.order_by("id").all()
+  # [DONE] TODO: replace with real data returned from querying the database
+  
+  data = Artist.query.with_entities(Artist.id, Artist.name).order_by("name").all()
   print(data, file = sys.stderr)
-
-  '''
-  data=[{
-    "id": 4,
-    "name": "Guns N Petals",
-  }, {
-    "id": 5,
-    "name": "Matt Quevedo",
-  }, {
-    "id": 6,
-    "name": "The Wild Sax Band",
-  }]
-  '''
+  
+  #data1= Artist.query.order_by("name").all()
+  #print(data1, file = sys.stderr)
   
   return render_template('pages/artists.html', artists=data)
 
@@ -382,31 +458,48 @@ def search_artists():
   }
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
+#  View Artist
+#  ----------------------------------------------------------------
+
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
   # shows the artist page with the given artist_id
-
+  
   # [DONE] TODO: replace with real artist data from the artist table, using artist_id
   artist = Artist.query.get(artist_id)
   print(artist, file = sys.stderr)
   
   past_shows = []
   upcoming_shows = []
-
+  
   for show in artist.shows:
     print(show, file = sys.stderr)
-
+    
     show_data = {
-          "venue_id": show.venue_id,
-          "venue_name": show.venue.name,
-          "venue_image_link": show.venue.image_link,
-          "start_time": format_datetime(str(show.start_time))
-          }
+      "venue_id": show.venue_id,
+      "venue_name": show.venue.name,
+      "venue_image_link": show.venue.image_link,
+      "start_time": format_datetime(str(show.start_time))
+    }
     
     if show.start_time > datetime.now():
-      past_shows.append(show_data)
-    else:
       upcoming_shows.append(show_data)
+    else:
+      past_shows.append(show_data)
+    
+    '''
+      outside the loop
+      upcoming_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time > datetime.now()).all()
+      past_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time < datetime.now()).all()
+    '''
+    
+    '''
+      inside the loop
+      if show.start_time > datetime.now():
+        past_shows.append(show_data)
+      else:
+        upcoming_shows.append(show_data)
+    '''
   
   print(past_shows, file = sys.stderr)
   print(upcoming_shows, file = sys.stderr)
@@ -428,7 +521,8 @@ def show_artist(artist_id):
     "past_shows_count": len(past_shows),
     "upcoming_shows_count": len(upcoming_shows),
   }
-
+  
+  #data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
 
   '''
   data1={
@@ -508,8 +602,9 @@ def show_artist(artist_id):
   
   return render_template('pages/show_artist.html', artist=data)
 
-#  Update
+#  Edit Artist
 #  ----------------------------------------------------------------
+
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
   form = ArtistForm()
@@ -621,7 +716,7 @@ def create_artist_submission():
   return render_template('pages/home.html')
 
 
-#  Shows
+#  Show Shows
 #  ----------------------------------------------------------------
 
 @app.route('/shows')
@@ -720,6 +815,10 @@ def create_show_submission():
     db.session.close()
     
   return render_template('pages/home.html')
+
+
+#  Error Handlers
+#  ----------------------------------------------------------------
 
 @app.errorhandler(404)
 def not_found_error(error):
