@@ -41,8 +41,8 @@ class Venue(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    #genres = db.Column(db.ARRAY(db.String))
-    genres = db.Column(db.String(120))
+    genres = db.Column(db.ARRAY(db.String))
+    #genres = db.Column(db.String(120))
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
@@ -68,8 +68,8 @@ class Artist(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    #genres = db.Column(db.ARRAY(db.String))
-    genres = db.Column(db.String(120))
+    genres = db.Column(db.ARRAY(db.String))
+    #genres = db.Column(db.String(120))
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
@@ -670,7 +670,7 @@ def create_artist_submission():
 @app.route('/shows')
 def shows():
   # displays list of shows at /shows
-  # TODO: replace with real venues data.
+  # [DONE] TODO: replace with real venues data.
   # num_shows should be aggregated based on number of upcoming shows per venue.
   
   shows = Show.query.order_by("start_time").all()

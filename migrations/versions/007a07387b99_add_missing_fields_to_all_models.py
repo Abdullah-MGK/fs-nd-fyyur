@@ -1,8 +1,8 @@
 """add missing fields to all models
 
-Revision ID: 1de4972cdaaf
+Revision ID: 007a07387b99
 Revises: 2130b3685ac3
-Create Date: 2020-10-14 02:55:38.308324
+Create Date: 2020-10-15 11:39:27.662463
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1de4972cdaaf'
+revision = '007a07387b99'
 down_revision = '2130b3685ac3'
 branch_labels = None
 depends_on = None
@@ -21,7 +21,7 @@ def upgrade():
     op.add_column('Artist', sa.Column('seeking_description', sa.String(), nullable=True))
     op.add_column('Artist', sa.Column('seeking_venue', sa.Boolean(), nullable=True))
     op.add_column('Artist', sa.Column('website', sa.String(length=120), nullable=True))
-    op.add_column('Venue', sa.Column('genres', sa.String(length=120), nullable=True))
+    op.add_column('Venue', sa.Column('genres', sa.ARRAY(sa.String()), nullable=True))
     op.add_column('Venue', sa.Column('seeking_description', sa.String(), nullable=True))
     op.add_column('Venue', sa.Column('seeking_talent', sa.Boolean(), nullable=True))
     op.add_column('Venue', sa.Column('website', sa.String(length=120), nullable=True))
