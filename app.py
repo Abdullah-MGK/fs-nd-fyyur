@@ -725,7 +725,26 @@ def shows():
   # TODO: replace with real venues data.
   # num_shows should be aggregated based on number of upcoming shows per venue.
   
-  data = Show.query.order_by("id").all()
+  shows = Show.query.order_by("start_time").all()
+  print(shows, file = sys.stderr)
+  data = []
+
+  for show in shows:
+    data.append({
+      "venue_id": show.venue_id,
+      "venue_name": show.venue.name,
+      "artist_id": show.artist_id,
+      "artist_name": show.artist.name,
+      "artist_image_link": show.artist.image_link,
+      "start_time": format_datetime(str(show.start_time))
+    })
+    
+  return render_template('pages/shows.html', shows=data)
+
+
+#  Create Show
+#  ----------------------------------------------------------------
+
   
   data=[{
     "venue_id": 1,
