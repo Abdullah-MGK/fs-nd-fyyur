@@ -36,72 +36,67 @@ migrate = Migrate(app, db)
 #  Venue
 #  ----------------------------------------------------------------
 
+# [DONE] TODO: implement any missing fields, as a database migration using Flask-Migrate
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+  __tablename__ = 'Venue'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    genres = db.Column(db.ARRAY(db.String))
-    #genres = db.Column(db.String(120))
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    address = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    website = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    shows = db.relationship('Show', backref='venue', lazy=True)
-    seeking_talent = db.Column(db.Boolean)
-    seeking_description = db.Column(db.String)
-
-    def __repr__(self):
-        return f'<id: {self.id}, name: {self.name}, shows: {self.shows}>'
-
-    # [DONE] TODO: implement any missing fields, as a database migration using Flask-Migrate
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String)
+  genres = db.Column(db.ARRAY(db.String))
+  city = db.Column(db.String(120))
+  state = db.Column(db.String(120))
+  address = db.Column(db.String(120))
+  phone = db.Column(db.String(120))
+  website = db.Column(db.String(120))
+  image_link = db.Column(db.String(500))
+  facebook_link = db.Column(db.String(120))
+  shows = db.relationship('Show', backref='venue', lazy=True)
+  seeking_talent = db.Column(db.Boolean)
+  seeking_description = db.Column(db.String)
+  
+  def __repr__(self):
+    return f'<id: {self.id}, name: {self.name}, shows: {self.shows}>'
 
 
 #  Artist
 #  ----------------------------------------------------------------
 
+# [DONE] TODO: implement any missing fields, as a database migration using Flask-Migrate
 class Artist(db.Model):
-    __tablename__ = 'Artist'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    genres = db.Column(db.ARRAY(db.String))
-    #genres = db.Column(db.String(120))
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    website = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    shows = db.relationship('Show', backref='artist', lazy=True)
-    seeking_venue = db.Column(db.Boolean)
-    seeking_description = db.Column(db.String)
-
-    def __repr__(self):
-        return f'<id: {self.id}, name: {self.name}, shows: {self.shows}>'
-
-    # [DONE] TODO: implement any missing fields, as a database migration using Flask-Migrate
+  __tablename__ = 'Artist'
+  
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String)
+  genres = db.Column(db.ARRAY(db.String))
+  city = db.Column(db.String(120))
+  state = db.Column(db.String(120))
+  phone = db.Column(db.String(120))
+  website = db.Column(db.String(120))
+  image_link = db.Column(db.String(500))
+  facebook_link = db.Column(db.String(120))
+  shows = db.relationship('Show', backref='artist', lazy=True)
+  seeking_venue = db.Column(db.Boolean)
+  seeking_description = db.Column(db.String)
+  
+  def __repr__(self):
+    return f'<id: {self.id}, name: {self.name}, shows: {self.shows}>'
 
 
 #  Show
 #  ----------------------------------------------------------------
 
 # [DONE] TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+# [DONE] TODO: implement any missing fields, as a database migration using Flask-Migrate
 class Show(db.Model):
-    __tablename__ = 'Show'
-
-    id = db.Column(db.Integer, primary_key=True)
-    start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
-    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
-
-    def __repr__(self):
-        return f'<id: {self.id}, start: {self.start_time}, artist: {self.artist_id}, venue: {self.venue_id}>'
-    
-    # [DONE] TODO: implement any missing fields, as a database migration using Flask-Migrate
+  __tablename__ = 'Show'
+  
+  id = db.Column(db.Integer, primary_key=True)
+  start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+  artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
+  venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
+  
+  def __repr__(self):
+    return f'<id: {self.id}, start: {self.start_time}, artist: {self.artist_id}, venue: {self.venue_id}>'  
 
 
 #----------------------------------------------------------------------------#
@@ -111,9 +106,9 @@ class Show(db.Model):
 def format_datetime(value, format='medium'):
   date = dateutil.parser.parse(value)
   if format == 'full':
-      format="EEEE MMMM, d, y 'at' h:mma"
+    format="EEEE MMMM, d, y 'at' h:mma"
   elif format == 'medium':
-      format="EE MM, dd, y h:mma"
+    format="EE MM, dd, y h:mma"
   return babel.dates.format_datetime(date, format)
 
 app.jinja_env.filters['datetime'] = format_datetime
@@ -143,6 +138,9 @@ def venues():
   print(venues, file = sys.stderr)
   then create a dictionary {city:state} and iterate on that dictionary to get the venues related to it from venues
   '''
+  '''
+  venues_area = Venue.query.filter_by(state=area.state).filter_by(city=area.city).all()
+  '''
   
   areas = Venue.query.with_entities(Venue.city, Venue.state).group_by('city', 'state').all()
   print(areas, file = sys.stderr)
@@ -169,7 +167,6 @@ def venues():
       venue_data.append({
         "id": venue.id,
         "name": venue.name, 
-        # MY TODO: Use for loop to count shows using if venue.shows.time > current
         "num_upcoming_shows": len(Show.query.filter(Show.venue_id==venue.id).filter(Show.start_time>datetime.now()).all())
       })
     
@@ -182,7 +179,7 @@ def venues():
   return render_template('pages/venues.html', areas=data)
 
 
-  #  View Venue
+#  View Venue
 #  ----------------------------------------------------------------
 
 @app.route('/venues/<int:venue_id>')
@@ -322,7 +319,7 @@ def create_venue_submission():
       error = True
       print(form.errors, file = sys.stderr)
       raise Exception("invalid data")
-      
+    
     new_venue = Venue(
       name = request.form['name'],
       genres = request.form.getlist('genres'),
@@ -374,14 +371,14 @@ def delete_venue(venue_id):
     db.session.delete(venue)
     db.session.commit()
     flash('Venue ' + venue.name + ' was deleted')
-    
+  
   except:
     flash('could not delete Venue ' + venue_name)
     db.session.rollback()
-    
+  
   finally:
     db.session.close()
-    
+  
   return None
 
 
@@ -392,6 +389,7 @@ def delete_venue(venue_id):
 def edit_venue(venue_id):
   form = VenueForm()
   venue = Venue.query.get(venue_id)
+  
   form.name.data = venue.name
   form.genres.data = venue.genres
   form.city.data = venue.city
@@ -405,17 +403,21 @@ def edit_venue(venue_id):
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
-
+  
   error = False
+  form = VenueForm()
   
   try:
     # [DONE] TODO: take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
     print("try", file = sys.stderr)
     
-    # MY TODO: if not form.validate_on_submit():
-    #print("invalid form", file = sys.stderr)
-    #raise Exception("invalid data")
+    print(form.errors, file = sys.stderr)
+    if not form.validate_on_submit():
+      print("invalid form", file = sys.stderr)
+      error = True
+      print(form.errors, file = sys.stderr)
+      raise Exception("invalid data")
     
     venue = Venue.query.get(venue_id)
     
@@ -446,7 +448,8 @@ def edit_venue_submission(venue_id):
     db.session.close()
   
   if error:
-    return render_template('forms/edit_venue.html', form=form, artist=artist)
+    venue = Venue.query.get(venue_id)
+    return render_template('forms/edit_venue.html', form=form, venue=venue)
   
   return redirect(url_for('show_venue', venue_id=venue_id))
 
@@ -552,7 +555,7 @@ def search_artists():
     "count": len(result_artists),
     "data": data
   }
-
+  
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
 
@@ -570,9 +573,6 @@ def create_artist_submission():
   # called upon submitting the new artist listing form
   
   '''
-  #form = VenueForm()
-  #form = VenueForm(request.form)
-
   print(form.name.data, file = sys.stderr)
   # no form: name 'form' is not defined
   # form = VenueForm(): "data"
@@ -642,6 +642,7 @@ def create_artist_submission():
 
 #  Delete Artist
 #  ----------------------------------------------------------------
+
 @app.route('/artists/<artist_id>', methods=['DELETE'])
 def delete_artist(artist_id):
   # Complete this endpoint for taking a artist_id, and using
@@ -688,15 +689,19 @@ def edit_artist(artist_id):
 def edit_artist_submission(artist_id):
   
   error = False
+  form = ArtistForm()
   
   try:
     # [DONE] TODO: take values from the form submitted, and update existing
     # artist record with ID <artist_id> using the new attributes
     print("try", file = sys.stderr)
-    
-    # MY TODO: if not form.validate_on_submit():
-    #print("invalid form", file = sys.stderr)
-    #raise Exception("invalid data")
+
+    print(form.errors, file = sys.stderr)
+    if not form.validate_on_submit():
+      print("invalid form", file = sys.stderr)
+      error = True
+      print(form.errors, file = sys.stderr)
+      raise Exception("invalid data")
     
     artist = Artist.query.get(artist_id)
     
@@ -725,6 +730,7 @@ def edit_artist_submission(artist_id):
     db.session.close()
   
   if error:
+    artist = Artist.query.get(artist_id)
     return render_template('forms/edit_artist.html', form=form, artist=artist)
   
   return redirect(url_for('show_artist', artist_id=artist_id))
@@ -769,38 +775,14 @@ def create_shows():
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   
-  '''
-  #form = VenueForm()
+  form = ShowForm()
   #form = VenueForm(request.form)
-
-  print(form.name.data, file = sys.stderr)
-  # no form: name 'form' is not defined
-  # form = VenueForm(): "data"
-  # form = VenueForm(request.form): "data"
-  print(form['name'], file = sys.stderr)
-  # no form: name 'form' is not defined
-  # form = VenueForm(): "the whole form object"
-  # form = VenueForm(request.form): "the whole form object"
-  print(request.form['gg'], file = sys.stderr)
-  # no form: "data"
-  # form = VenueForm(): "data"
-  # form = VenueForm(request.form): "data"
-  print(request.form.get('gg'), file = sys.stderr)
-  # no form: "data"
-  # form = VenueForm(): "data"
-  # form = VenueForm(request.form): "data"
-  '''
-  
   error = False
   
   try:
     # [DONE] TODO: insert form data as a new Show record in the db
     # [DONE] TODO: modify data to be the data object returned from db insertion
     print("try", file = sys.stderr)
-    
-    # MY TODO: if not form.validate_on_submit():
-    #print("invalid form", file = sys.stderr)
-    #raise Exception("invalid data")
     
     new_show = Show(
       start_time = request.form['start_time'],
