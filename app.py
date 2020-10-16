@@ -138,32 +138,28 @@ def venues():
   # [DONE] TODO: replace with real venues data.
   # num_shows should be aggregated based on number of upcoming shows per venue.
   
-  #venue_groups = Venue.query.group_by(Venue.id, Venue.state, Venue.city).all()
-  #print(venue_groups, file = sys.stderr)
-  
-  #venues = Venue.query.order_by("name").all()
-  #print(venues, file = sys.stderr)
-  #then create a dictionary {city:state} and iterate on that dictionary to get the venues related to it from venues
+  '''
+  venues = Venue.query.order_by("name").all()
+  print(venues, file = sys.stderr)
+  then create a dictionary {city:state} and iterate on that dictionary to get the venues related to it from venues
+  '''
   
   areas = Venue.query.with_entities(Venue.city, Venue.state).group_by('city', 'state').all()
   print(areas, file = sys.stderr)
   
+  '''
+    inside the loop (as in the next method)
+    for show in venue.shows:
+      print(show, file = sys.stderr)
+      if show.start_time > datetime.now():
+        upcoming_shows += 1
+  '''
+  '''
+    outside the loop (as in this method)
+    upcoming_shows = Show.query.filter(Show.venue_id == venue.id).filter(Show.start_time > datetime.now()).all()
+  '''
+  
   data = []
-
-  '''
-  inside the loop
-  for show in venue.shows:
-    print(show, file = sys.stderr)
-    if show.start_time > datetime.now():
-      upcoming_shows += 1
-  '''
-
-  '''
-  outside the loop
-  upcoming_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time > datetime.now()).all()
-    
-  print(upcoming_shows, file = sys.stderr)
-  '''
   
   for area in areas:
     venues_area = Venue.query.filter_by(state=area.state).filter_by(city=area.city).all()
@@ -174,7 +170,7 @@ def venues():
         "id": venue.id,
         "name": venue.name, 
         # MY TODO: Use for loop to count shows using if venue.shows.time > current
-        "num_upcoming_shows": len(Show.query.filter(Show.venue_id==1).filter(Show.start_time>datetime.now()).all())
+        "num_upcoming_shows": len(Show.query.filter(Show.venue_id==venue.id).filter(Show.start_time>datetime.now()).all())
       })
     
     data.append({
@@ -192,14 +188,27 @@ def venues():
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
-
-  # TODO: replace with real venue data from the venues table, using venue_id
+  
+  # [DONE] TODO: replace with real venue data from the venues table, using venue_id
   venue = Venue.query.get(venue_id)
   print(venue, file = sys.stderr)
-
+  
+  '''
+    outside the loop
+    upcoming_shows = Show.query.filter(Show.venue_id == venue.id).filter(Show.start_time > datetime.now()).all()
+    past_shows = Show.query.filter(Show.venue_id == venue.id).filter(Show.start_time < datetime.now()).all()
+  '''
+  '''
+    inside the loop
+    if show.start_time > datetime.now():
+      past_shows.append(show_data)
+    else:
+      upcoming_shows.append(show_data)
+  '''
+  
   past_shows = []
   upcoming_shows = []
-
+  
   for show in venue.shows:
     print(show, file = sys.stderr)
     
@@ -214,23 +223,6 @@ def show_venue(venue_id):
       upcoming_shows.append(show_data)
     else:
       past_shows.append(show_data)
-    
-
-    '''
-      outside the loop
-      upcoming_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time > datetime.now()).all()
-      past_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time < datetime.now()).all()
-    '''
-    '''
-      inside the loop
-      if show.start_time > datetime.now():
-        past_shows.append(show_data)
-      else:
-        upcoming_shows.append(show_data)
-    
-    print(past_shows, file = sys.stderr)
-    print(upcoming_shows, file = sys.stderr)
-    '''
   
   data = {
     "id": venue.id,
@@ -315,6 +307,8 @@ def create_venue_submission():
   # form = VenueForm(request.form): "data"
   '''
   
+  #form = VenueForm()
+  form = VenueForm(request.form)
   error = False
   
   try:
@@ -323,8 +317,8 @@ def create_venue_submission():
     print("try", file = sys.stderr)
     
     # MY TODO: if not form.validate_on_submit():
-      #print("invalid form", file = sys.stderr)
-      #raise Exception("invalid data")
+    #print("invalid form", file = sys.stderr)
+    #raise Exception("invalid data")
     
     new_venue = Venue(
       name = request.form['name'],
@@ -355,7 +349,7 @@ def create_venue_submission():
     db.session.close()
   
   if error:
-    return redirect(url_for('create_venue_form'))
+    return render_template('forms/new_venue.html', form=form)
   
   return render_template('pages/home.html')
 
@@ -382,9 +376,6 @@ def artists():
   data = Artist.query.with_entities(Artist.id, Artist.name).order_by("name").all()
   print(data, file = sys.stderr)
   
-  #data1= Artist.query.order_by("name").all()
-  #print(data1, file = sys.stderr)
-  
   return render_template('pages/artists.html', artists=data)
 
 
@@ -398,6 +389,19 @@ def show_artist(artist_id):
   # [DONE] TODO: replace with real artist data from the artist table, using artist_id
   artist = Artist.query.get(artist_id)
   print(artist, file = sys.stderr)
+  
+  '''
+    outside the loop
+    upcoming_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time > datetime.now()).all()
+    past_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time < datetime.now()).all()
+  '''
+  '''
+    inside the loop
+    if show.start_time > datetime.now():
+      past_shows.append(show_data)
+    else:
+      upcoming_shows.append(show_data)
+  '''
   
   past_shows = []
   upcoming_shows = []
@@ -416,23 +420,6 @@ def show_artist(artist_id):
       upcoming_shows.append(show_data)
     else:
       past_shows.append(show_data)
-    
-    '''
-      outside the loop
-      upcoming_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time > datetime.now()).all()
-      past_shows = Show.query.filter(Show.artist_id == artist.id).filter(Show.start_time < datetime.now()).all()
-    '''
-    
-    '''
-      inside the loop
-      if show.start_time > datetime.now():
-        past_shows.append(show_data)
-      else:
-        upcoming_shows.append(show_data)
-    '''
-  
-  print(past_shows, file = sys.stderr)
-  print(upcoming_shows, file = sys.stderr)
   
   data = {
     "id": artist.id,
@@ -453,7 +440,6 @@ def show_artist(artist_id):
   }
   
   #data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
-  
   return render_template('pages/show_artist.html', artist=data)
 
 
@@ -485,61 +471,6 @@ def search_artists():
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
 
-#  Edit Artist
-#  ----------------------------------------------------------------
-
-@app.route('/artists/<int:artist_id>/edit', methods=['GET'])
-def edit_artist(artist_id):
-  form = ArtistForm()
-  artist={
-    "id": 4,
-    "name": "Guns N Petals",
-    "genres": ["Rock n Roll"],
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "326-123-5000",
-    "website": "https://www.gunsnpetalsband.com",
-    "facebook_link": "https://www.facebook.com/GunsNPetals",
-    "seeking_venue": True,
-    "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
-    "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80"
-  }
-  # TODO: populate form with fields from artist with ID <artist_id>
-  return render_template('forms/edit_artist.html', form=form, artist=artist)
-
-@app.route('/artists/<int:artist_id>/edit', methods=['POST'])
-def edit_artist_submission(artist_id):
-  # TODO: take values from the form submitted, and update existing
-  # artist record with ID <artist_id> using the new attributes
-
-  return redirect(url_for('show_artist', artist_id=artist_id))
-
-@app.route('/venues/<int:venue_id>/edit', methods=['GET'])
-def edit_venue(venue_id):
-  form = VenueForm()
-  venue={
-    "id": 1,
-    "name": "The Musical Hop",
-    "genres": ["Jazz", "Reggae", "Swing", "Classical", "Folk"],
-    "address": "1015 Folsom Street",
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "123-123-1234",
-    "website": "https://www.themusicalhop.com",
-    "facebook_link": "https://www.facebook.com/TheMusicalHop",
-    "seeking_talent": True,
-    "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
-    "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
-  }
-  # TODO: populate form with values from venue with ID <venue_id>
-  return render_template('forms/edit_venue.html', form=form, venue=venue)
-
-@app.route('/venues/<int:venue_id>/edit', methods=['POST'])
-def edit_venue_submission(venue_id):
-  # TODO: take values from the form submitted, and update existing
-  # venue record with ID <venue_id> using the new attributes
-  return redirect(url_for('show_venue', venue_id=venue_id))
-
 #  Create Artist
 #  ----------------------------------------------------------------
 
@@ -554,6 +485,9 @@ def create_artist_submission():
   # called upon submitting the new artist listing form
   
   '''
+  #form = VenueForm()
+  #form = VenueForm(request.form)
+
   print(form.name.data, file = sys.stderr)
   # no form: name 'form' is not defined
   # form = VenueForm(): "data"
@@ -611,7 +545,7 @@ def create_artist_submission():
     db.session.close()
   
   if error:
-    return redirect(url_for('create_artist_form'))
+    return render_template('forms/new_artist.html', form=form)
   
   return render_template('pages/home.html')
 
@@ -628,7 +562,7 @@ def shows():
   shows = Show.query.order_by("start_time").all()
   print(shows, file = sys.stderr)
   data = []
-
+  
   for show in shows:
     data.append({
       "venue_id": show.venue_id,
@@ -638,7 +572,7 @@ def shows():
       "artist_image_link": show.artist.image_link,
       "start_time": format_datetime(str(show.start_time))
     })
-    
+  
   return render_template('pages/shows.html', shows=data)
 
 
@@ -656,6 +590,9 @@ def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   
   '''
+  #form = VenueForm()
+  #form = VenueForm(request.form)
+
   print(form.name.data, file = sys.stderr)
   # no form: name 'form' is not defined
   # form = VenueForm(): "data"
@@ -710,7 +647,7 @@ def create_show_submission():
     db.session.close()
   
   if error:
-    return redirect(url_for('create_shows'))
+    return render_template('forms/new_show.html', form=form)
   
   return render_template('pages/home.html')
 
