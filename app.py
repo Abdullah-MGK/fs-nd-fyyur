@@ -282,89 +282,6 @@ def search_venues():
   
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
-@app.route('/venues/<int:venue_id>')
-def show_venue(venue_id):
-  # shows the venue page with the given venue_id
-  # TODO: replace with real venue data from the venues table, using venue_id
-  data1={
-    "id": 1,
-    "name": "The Musical Hop",
-    "genres": ["Jazz", "Reggae", "Swing", "Classical", "Folk"],
-    "address": "1015 Folsom Street",
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "123-123-1234",
-    "website": "https://www.themusicalhop.com",
-    "facebook_link": "https://www.facebook.com/TheMusicalHop",
-    "seeking_talent": True,
-    "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
-    "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
-    "past_shows": [{
-      "artist_id": 4,
-      "artist_name": "Guns N Petals",
-      "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-      "start_time": "2019-05-21T21:30:00.000Z"
-    }],
-    "upcoming_shows": [],
-    "past_shows_count": 1,
-    "upcoming_shows_count": 0,
-  }
-  data2={
-    "id": 2,
-    "name": "The Dueling Pianos Bar",
-    "genres": ["Classical", "R&B", "Hip-Hop"],
-    "address": "335 Delancey Street",
-    "city": "New York",
-    "state": "NY",
-    "phone": "914-003-1132",
-    "website": "https://www.theduelingpianos.com",
-    "facebook_link": "https://www.facebook.com/theduelingpianos",
-    "seeking_talent": False,
-    "image_link": "https://images.unsplash.com/photo-1497032205916-ac775f0649ae?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=750&q=80",
-    "past_shows": [],
-    "upcoming_shows": [],
-    "past_shows_count": 0,
-    "upcoming_shows_count": 0,
-  }
-  data3={
-    "id": 3,
-    "name": "Park Square Live Music & Coffee",
-    "genres": ["Rock n Roll", "Jazz", "Classical", "Folk"],
-    "address": "34 Whiskey Moore Ave",
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "415-000-1234",
-    "website": "https://www.parksquarelivemusicandcoffee.com",
-    "facebook_link": "https://www.facebook.com/ParkSquareLiveMusicAndCoffee",
-    "seeking_talent": False,
-    "image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
-    "past_shows": [{
-      "artist_id": 5,
-      "artist_name": "Matt Quevedo",
-      "artist_image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
-      "start_time": "2019-06-15T23:00:00.000Z"
-    }],
-    "upcoming_shows": [{
-      "artist_id": 6,
-      "artist_name": "The Wild Sax Band",
-      "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-      "start_time": "2035-04-01T20:00:00.000Z"
-    }, {
-      "artist_id": 6,
-      "artist_name": "The Wild Sax Band",
-      "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-      "start_time": "2035-04-08T20:00:00.000Z"
-    }, {
-      "artist_id": 6,
-      "artist_name": "The Wild Sax Band",
-      "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-      "start_time": "2035-04-15T20:00:00.000Z"
-    }],
-    "past_shows_count": 1,
-    "upcoming_shows_count": 1,
-  }
-  data = list(filter(lambda d: d['id'] == venue_id, [data1, data2, data3]))[0]
-  return render_template('pages/show_venue.html', venue=data)
 
 #  Create Venue
 #  ----------------------------------------------------------------
@@ -378,49 +295,67 @@ def create_venue_form():
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
   # called upon submitting the new venue listing form
-
+  
+  '''
+  print(form.name.data, file = sys.stderr)
+  # no form: name 'form' is not defined
+  # form = VenueForm(): "data"
+  # form = VenueForm(request.form): "data"
+  print(form['name'], file = sys.stderr)
+  # no form: name 'form' is not defined
+  # form = VenueForm(): "the whole form object"
+  # form = VenueForm(request.form): "the whole form object"
+  print(request.form['gg'], file = sys.stderr)
+  # no form: "data"
+  # form = VenueForm(): "data"
+  # form = VenueForm(request.form): "data"
+  print(request.form.get('gg'), file = sys.stderr)
+  # no form: "data"
+  # form = VenueForm(): "data"
+  # form = VenueForm(request.form): "data"
+  '''
+  
+  error = False
+  
   try:
-    # TODO: insert form data as a new Venue record in the db, instead
-    # TODO: modify data to be the data object returned from db insertion
+    # [DONE] TODO: insert form data as a new Venue record in the db
+    # [DONE] TODO: modify data to be the data object returned from db insertion
     print("try", file = sys.stderr)
-    form = VenueForm()
     
     # MY TODO: if not form.validate_on_submit():
       #print("invalid form", file = sys.stderr)
       #raise Exception("invalid data")
-
-    # MY TODO: add other attributes
+    
     new_venue = Venue(
-      name = form.name.data,
-      city = form.city.data,
-      state = form.state.data,
-      address = form.address.data,
-      phone = form.phone.data,
-      image_link = form.image_link.data,
-      facebook_link = form.facebook_link.data,
+      name = request.form['name'],
+      genres = request.form.getlist('genres'),
+      city = request.form['city'],
+      state = request.form['state'],
+      address = request.form['address'],
+      phone = request.form['phone'],
+      facebook_link = request.form['facebook_link']
     )
-
-    # form.name.data
-    # return a string
-    # form['name'], request.form['venue_id']
-    # return <wtforms.fields.StringField object at 0x827eccc>
-
+    
     db.session.add(new_venue)
     db.session.commit()
-
+    
     # on successful db insert, flash success
     flash('Venue ' + request.form['name'] + ' was successfully listed!')
-
+  
   except:
     # [DONE] TODO: on unsuccessful db insert, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     print("except", file = sys.stderr)
+    error = True
     db.session.rollback()
     flash('An error occurred. Venue ' + request.form['name'] + ' could not be listed.')
-
+  
   finally:
     print("finally", file = sys.stderr)
     db.session.close()
+  
+  if error:
+    return redirect(url_for('create_venue_form'))
   
   return render_template('pages/home.html')
 
@@ -617,50 +552,67 @@ def create_artist_form():
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
   # called upon submitting the new artist listing form
-
+  
+  '''
+  print(form.name.data, file = sys.stderr)
+  # no form: name 'form' is not defined
+  # form = VenueForm(): "data"
+  # form = VenueForm(request.form): "data"
+  print(form['name'], file = sys.stderr)
+  # no form: name 'form' is not defined
+  # form = VenueForm(): "the whole form object"
+  # form = VenueForm(request.form): "the whole form object"
+  print(request.form['gg'], file = sys.stderr)
+  # no form: "data"
+  # form = VenueForm(): "data"
+  # form = VenueForm(request.form): "data"
+  print(request.form.get('gg'), file = sys.stderr)
+  # no form: "data"
+  # form = VenueForm(): "data"
+  # form = VenueForm(request.form): "data"
+  '''
+  
+  error = False
+  
   try:
-    # TODO: insert form data as a new Venue record in the db, instead
-    # TODO: modify data to be the data object returned from db insertion
+    # [DONE] TODO: insert form data as a new Venue record in the db
+    # [DONE] TODO: modify data to be the data object returned from db insertion
     print("try", file = sys.stderr)
-    form = ArtistForm()
-
+    
     # MY TODO: if not form.validate_on_submit():
       #print("invalid form", file = sys.stderr)
       #raise Exception("invalid data")
-
-    # MY TODO: add other attributes
+    
     new_artist = Artist(
-      name = form.name.data,
-      city = form.city.data,
-      state = form.state.data,
-      phone = form.phone.data,
-      genres = form.genres.data,
-      image_link = form.image_link.data,
-      facebook_link = form.facebook_link.data,
+      name = request.form['name'],
+      genres = request.form.getlist('genres'),
+      city = request.form['city'],
+      state = request.form['state'],
+      phone = request.form['phone'],
+      facebook_link = request.form['facebook_link']
     )
-
-    # form.name.data
-    # return a string
-    # form['name'], request.form['venue_id']
-    # return <wtforms.fields.StringField object at 0x827eccc>
-
+    
     db.session.add(new_artist)
     db.session.commit()
-
+    
     # on successful db insert, flash success
     flash('Artist ' + request.form['name'] + ' was successfully listed!')
-
+  
   except:
     # [DONE] TODO: on unsuccessful db insert, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     print("except", file = sys.stderr)
+    error = True
     db.session.rollback()
     flash('An error occurred. Artist ' + request.form['name'] + ' could not be listed.')
-
+  
   finally:
     print("finally", file = sys.stderr)
     db.session.close()
-
+  
+  if error:
+    return redirect(url_for('create_artist_form'))
+  
   return render_template('pages/home.html')
 
 
@@ -693,46 +645,6 @@ def shows():
 #  Create Show
 #  ----------------------------------------------------------------
 
-  
-  data=[{
-    "venue_id": 1,
-    "venue_name": "The Musical Hop",
-    "artist_id": 4,
-    "artist_name": "Guns N Petals",
-    "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-    "start_time": "2019-05-21T21:30:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 5,
-    "artist_name": "Matt Quevedo",
-    "artist_image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
-    "start_time": "2019-06-15T23:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-01T20:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-08T20:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-15T20:00:00.000Z"
-  }]
-  
-  return render_template('pages/shows.html', shows=data)
-
 @app.route('/shows/create')
 def create_shows():
   # renders form. do not touch.
@@ -743,44 +655,63 @@ def create_shows():
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   
+  '''
+  print(form.name.data, file = sys.stderr)
+  # no form: name 'form' is not defined
+  # form = VenueForm(): "data"
+  # form = VenueForm(request.form): "data"
+  print(form['name'], file = sys.stderr)
+  # no form: name 'form' is not defined
+  # form = VenueForm(): "the whole form object"
+  # form = VenueForm(request.form): "the whole form object"
+  print(request.form['gg'], file = sys.stderr)
+  # no form: "data"
+  # form = VenueForm(): "data"
+  # form = VenueForm(request.form): "data"
+  print(request.form.get('gg'), file = sys.stderr)
+  # no form: "data"
+  # form = VenueForm(): "data"
+  # form = VenueForm(request.form): "data"
+  '''
+  
+  error = False
+  
   try:
-    # TODO: insert form data as a new Show record in the db, instead
-    # TODO: modify data to be the data object returned from db insertion
+    # [DONE] TODO: insert form data as a new Show record in the db
+    # [DONE] TODO: modify data to be the data object returned from db insertion
     print("try", file = sys.stderr)
-    form = ShowForm()
-
+    
     # MY TODO: if not form.validate_on_submit():
       #print("invalid form", file = sys.stderr)
       #raise Exception("invalid data")
-
+    
     new_show = Show(
-      start_time = form.start_time.data,
-      artist_id = form.artist_id.data,
-      venue_id = form.venue_id.data,
+      start_time = request.form['start_time'],
+      artist_id = request.form['artist_id'],
+      venue_id = request.form['venue_id']
     )
-
-    # form.name.data
-    # return a string
-    # form['name'], request.form['venue_id']
-    # return <wtforms.fields.StringField object at 0x827eccc>
     
     db.session.add(new_show)
     db.session.commit()
-
+    
     # on successful db insert, flash success
     flash('Show was successfully listed!')
-
+  
   except:
-    # TODO: on unsuccessful db insert, flash an error instead.
+    # [DONE] TODO: on unsuccessful db insert, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     print("except", file = sys.stderr)
+    error = True
     db.session.rollback()
     flash('An error occurred. Show could not be listed.')
-
+  
   finally:
     print("finally", file = sys.stderr)
     db.session.close()
-    
+  
+  if error:
+    return redirect(url_for('create_shows'))
+  
   return render_template('pages/home.html')
 
 
