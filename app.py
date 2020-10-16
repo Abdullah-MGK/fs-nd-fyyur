@@ -307,8 +307,8 @@ def create_venue_submission():
   # form = VenueForm(request.form): "data"
   '''
   
-  #form = VenueForm()
-  form = VenueForm(request.form)
+  form = VenueForm()
+  #form = VenueForm(request.form)
   error = False
   
   try:
@@ -316,10 +316,13 @@ def create_venue_submission():
     # [DONE] TODO: modify data to be the data object returned from db insertion
     print("try", file = sys.stderr)
     
-    # MY TODO: if not form.validate_on_submit():
-    #print("invalid form", file = sys.stderr)
-    #raise Exception("invalid data")
-    
+    print(form.errors, file = sys.stderr)
+    if not form.validate_on_submit():
+      print("invalid form", file = sys.stderr)
+      error = True
+      print(form.errors, file = sys.stderr)
+      raise Exception("invalid data")
+      
     new_venue = Venue(
       name = request.form['name'],
       genres = request.form.getlist('genres'),
@@ -588,16 +591,21 @@ def create_artist_submission():
   # form = VenueForm(request.form): "data"
   '''
   
+  form = ArtistForm()
+  #form = ArtistForm(request.form)
   error = False
   
   try:
     # [DONE] TODO: insert form data as a new Venue record in the db
     # [DONE] TODO: modify data to be the data object returned from db insertion
     print("try", file = sys.stderr)
-    
-    # MY TODO: if not form.validate_on_submit():
-    #print("invalid form", file = sys.stderr)
-    #raise Exception("invalid data")
+
+    print(form.errors, file = sys.stderr)
+    if not form.validate_on_submit():
+      print("invalid form", file = sys.stderr)
+      error = True
+      print(form.errors, file = sys.stderr)
+      raise Exception("invalid data")
     
     new_artist = Artist(
       name = request.form['name'],
@@ -632,6 +640,8 @@ def create_artist_submission():
   return render_template('pages/home.html')
 
 
+#  Delete Artist
+#  ----------------------------------------------------------------
 @app.route('/artists/<artist_id>', methods=['DELETE'])
 def delete_artist(artist_id):
   # Complete this endpoint for taking a artist_id, and using
