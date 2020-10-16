@@ -360,10 +360,25 @@ def create_venue_submission():
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
   # TODO: Complete this endpoint for taking a venue_id, and using
-  # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
-
+  # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
+  
+  try:
+    venue = Venue.query.get(venue_id)
+    venue_name = venue.name
+    print(venue, file = sys.stderr)
+    db.session.delete(venue)
+    db.session.commit()
+    flash('Venue ' + venue.name + ' was deleted')
+    
+  except:
+    flash('could not delete Venue ' + venue_name)
+    db.session.rollback()
+    
+  finally:
+    db.session.close()
+    
   return None
 
 #  Artists
@@ -548,6 +563,31 @@ def create_artist_submission():
     return render_template('forms/new_artist.html', form=form)
   
   return render_template('pages/home.html')
+
+
+@app.route('/artists/<artist_id>', methods=['DELETE'])
+def delete_artist(artist_id):
+  # Complete this endpoint for taking a artist_id, and using
+  # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail
+  # BONUS CHALLENGE: Implement a button to delete an Artist on an Artist Page, have it so that
+  # clicking that button delete it from the db then redirect the user to the homepage
+  
+  try:
+    artist = Artist.query.get(artist_id)
+    artist_name = artist.name
+    print(artist, file = sys.stderr)
+    db.session.delete(artist)
+    db.session.commit()
+    flash('Artist ' + artist.name + ' was deleted')
+    
+  except:
+    flash('could not delete Artist ' + venue_name)
+    db.session.rollback()
+    
+  finally:
+    db.session.close()
+    
+  return None
 
 
 #  Show Shows
