@@ -57,7 +57,7 @@ class Venue(db.Model):
     def __repr__(self):
         return f'<id: {self.id}, name: {self.name}, shows: {self.shows}>'
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    # [DONE] TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 
 #  Artist
@@ -83,7 +83,7 @@ class Artist(db.Model):
     def __repr__(self):
         return f'<id: {self.id}, name: {self.name}, shows: {self.shows}>'
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    # [DONE] TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 
 #  Show
@@ -101,7 +101,7 @@ class Show(db.Model):
     def __repr__(self):
         return f'<id: {self.id}, start: {self.start_time}, artist: {self.artist_id}, venue: {self.venue_id}>'
     
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    # [DONE] TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 
 #----------------------------------------------------------------------------#
@@ -233,10 +233,10 @@ def show_venue(venue_id):
     "address": venue.address,
     "phone": venue.phone,
     "website": venue.website,
+    "image_link": venue.image_link,
     "facebook_link": venue.facebook_link,
     "seeking_talent": venue.seeking_talent,
     "seeking_description": venue.seeking_description,
-    "image_link": venue.image_link,
     "past_shows": past_shows,
     "upcoming_shows": upcoming_shows,
     "past_shows_count": len(past_shows),
@@ -359,7 +359,7 @@ def create_venue_submission():
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
-  # TODO: Complete this endpoint for taking a venue_id, and using
+  # [DONE] TODO: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
@@ -381,7 +381,74 @@ def delete_venue(venue_id):
     
   return None
 
-#  Artists
+
+#  Edit Venue
+#  ----------------------------------------------------------------
+
+@app.route('/venues/<int:venue_id>/edit', methods=['GET'])
+def edit_venue(venue_id):
+  form = VenueForm()
+  venue = Venue.query.get(venue_id)
+  form.name.data = venue.name
+  form.genres.data = venue.genres
+  form.city.data = venue.city
+  form.state.data = venue.state
+  form.address.data = venue.address
+  form.phone.data = venue.phone
+  form.website.data = venue.website
+  form.facebook_link.data = venue.facebook_link
+  # [DONE] TODO: populate form with values from venue with ID <venue_id>
+  return render_template('forms/edit_venue.html', form=form, venue=venue)
+
+@app.route('/venues/<int:venue_id>/edit', methods=['POST'])
+def edit_venue_submission(venue_id):
+
+  error = False
+  
+  try:
+    # [DONE] TODO: take values from the form submitted, and update existing
+    # venue record with ID <venue_id> using the new attributes
+    print("try", file = sys.stderr)
+    
+    # MY TODO: if not form.validate_on_submit():
+    #print("invalid form", file = sys.stderr)
+    #raise Exception("invalid data")
+    
+    venue = Venue.query.get(venue_id)
+    
+    venue.name = request.form['name'],
+    venue.genres = request.form.getlist('genres'),
+    venue.city = request.form['city'],
+    venue.state = request.form['state'],
+    venue.address = request.form['address'],
+    venue.phone = request.form['phone'],
+    venue.website = request.form['website'],
+    venue.facebook_link = request.form['facebook_link']
+    
+    db.session.commit()
+    
+    # on successful db update, flash success
+    flash('Venue ' + request.form['name'] + ' was successfully updated!')
+  
+  except:
+    # [DONE] TODO: on unsuccessful db insert, flash an error instead.
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    print("except", file = sys.stderr)
+    error = True
+    db.session.rollback()
+    flash('An error occurred. Venue ' + request.form['name'] + ' could not be updated.')
+  
+  finally:
+    print("finally", file = sys.stderr)
+    db.session.close()
+  
+  if error:
+    return render_template('forms/edit_venue.html', form=form, artist=artist)
+  
+  return redirect(url_for('show_venue', venue_id=venue_id))
+
+
+#  Show Artists
 #  ----------------------------------------------------------------
 
 @app.route('/artists')
@@ -444,10 +511,10 @@ def show_artist(artist_id):
     "state": artist.state,
     "phone": artist.phone,
     "website": artist.website,
+    "image_link": artist.image_link,
     "facebook_link": artist.facebook_link,
     "seeking_venue": artist.seeking_venue,
     "seeking_description": artist.seeking_description,
-    "image_link": artist.image_link,
     "past_shows": past_shows,
     "upcoming_shows": upcoming_shows,
     "past_shows_count": len(past_shows),
@@ -529,8 +596,8 @@ def create_artist_submission():
     print("try", file = sys.stderr)
     
     # MY TODO: if not form.validate_on_submit():
-      #print("invalid form", file = sys.stderr)
-      #raise Exception("invalid data")
+    #print("invalid form", file = sys.stderr)
+    #raise Exception("invalid data")
     
     new_artist = Artist(
       name = request.form['name'],
@@ -588,6 +655,69 @@ def delete_artist(artist_id):
     db.session.close()
     
   return None
+
+
+#  Edit Artist
+#  ----------------------------------------------------------------
+
+@app.route('/artists/<int:artist_id>/edit', methods=['GET'])
+def edit_artist(artist_id):
+  form = ArtistForm()
+  artist = Artist.query.get(artist_id)
+  
+  form.name.data = artist.name
+  form.genres.data = artist.genres
+  form.city.data = artist.city
+  form.state.data = artist.state
+  form.phone.data = artist.phone
+  form.facebook_link.data = artist.facebook_link
+  # [DONE] TODO: populate form with fields from artist with ID <artist_id>
+  return render_template('forms/edit_artist.html', form=form, artist=artist)
+
+@app.route('/artists/<int:artist_id>/edit', methods=['POST'])
+def edit_artist_submission(artist_id):
+  
+  error = False
+  
+  try:
+    # [DONE] TODO: take values from the form submitted, and update existing
+    # artist record with ID <artist_id> using the new attributes
+    print("try", file = sys.stderr)
+    
+    # MY TODO: if not form.validate_on_submit():
+    #print("invalid form", file = sys.stderr)
+    #raise Exception("invalid data")
+    
+    artist = Artist.query.get(artist_id)
+    
+    artist.name = request.form['name'],
+    artist.genres = request.form.getlist('genres'),
+    artist.city = request.form['city'],
+    artist.state = request.form['state'],
+    artist.phone = request.form['phone'],
+    artist.facebook_link = request.form['facebook_link']
+    
+    db.session.commit()
+    
+    # on successful db update, flash success
+    flash('Artist ' + request.form['name'] + ' was successfully updated!')
+  
+  except:
+    # [DONE] TODO: on unsuccessful db insert, flash an error instead.
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    print("except", file = sys.stderr)
+    error = True
+    db.session.rollback()
+    flash('An error occurred. Artist ' + request.form['name'] + ' could not be updated.')
+  
+  finally:
+    print("finally", file = sys.stderr)
+    db.session.close()
+  
+  if error:
+    return render_template('forms/edit_artist.html', form=form, artist=artist)
+  
+  return redirect(url_for('show_artist', artist_id=artist_id))
 
 
 #  Show Shows
@@ -659,8 +789,8 @@ def create_show_submission():
     print("try", file = sys.stderr)
     
     # MY TODO: if not form.validate_on_submit():
-      #print("invalid form", file = sys.stderr)
-      #raise Exception("invalid data")
+    #print("invalid form", file = sys.stderr)
+    #raise Exception("invalid data")
     
     new_show = Show(
       start_time = request.form['start_time'],
