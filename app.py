@@ -5,7 +5,7 @@
 import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, render_template, request, Response, flash, redirect, url_for, jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -364,22 +364,34 @@ def delete_venue(venue_id):
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
   
+  error = False
+  
   try:
+    print("try", file = sys.stderr)
     venue = Venue.query.get(venue_id)
     venue_name = venue.name
     print(venue, file = sys.stderr)
+    
     db.session.delete(venue)
+    #Venue.query.filter_by(id=venue_id).delete()
+    
     db.session.commit()
-    flash('Venue ' + venue.name + ' was deleted')
-  
+    flash('Venue ' + venue_name + ' was deleted')
+    
   except:
+    print("except", file = sys.stderr)
+    error = True
     flash('could not delete Venue ' + venue_name)
     db.session.rollback()
   
   finally:
+    print("finally", file = sys.stderr)
     db.session.close()
+
+  if error:
+    return jsonify({'success': False})
   
-  return None
+  return jsonify({'success': True})
 
 
 #  Edit Venue
@@ -650,22 +662,34 @@ def delete_artist(artist_id):
   # BONUS CHALLENGE: Implement a button to delete an Artist on an Artist Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
   
+  error = False
+  
   try:
+    print("try", file = sys.stderr)
     artist = Artist.query.get(artist_id)
     artist_name = artist.name
     print(artist, file = sys.stderr)
+    
     db.session.delete(artist)
+    #Venue.query.filter_by(id=artist_id).delete()
+    
     db.session.commit()
-    flash('Artist ' + artist.name + ' was deleted')
+    flash('Artist ' + artist_name + ' was deleted')
     
   except:
-    flash('could not delete Artist ' + venue_name)
+    print("except", file = sys.stderr)
+    error = True
+    flash('could not delete Artist ' + artist_name)
     db.session.rollback()
     
   finally:
+    print("finally", file = sys.stderr)
     db.session.close()
     
-  return None
+  if error:
+   return jsonify({'success': False})
+  
+  return jsonify({'success': True})
 
 
 #  Edit Artist
