@@ -1,7 +1,12 @@
 from datetime import datetime
 from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, TextAreaField, BooleanField
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, TextAreaField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, AnyOf, URL, Optional
+import re
+
+def validate_phone(form, field):
+    if not re.search(r"^[0-9]{3}-[0-9]{3}-[0-9]{4}$", field.data):
+        raise ValidationError("Invalid phone number.")
 
 class ShowForm(Form):
     artist_id = StringField(
@@ -83,7 +88,8 @@ class VenueForm(Form):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone'
+        # [DONE] TODO implement validation logic for state
+        'phone', validators=[DataRequired(), validate_phone]
     )
     image_link = StringField(
         'image_link', validators=[URL(), Optional()]
@@ -114,7 +120,7 @@ class VenueForm(Form):
         ]
     )
     facebook_link = StringField(
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[URL(), Optional()]
     )
     website = StringField(
         'website', validators=[URL(), Optional()]
@@ -190,8 +196,8 @@ class ArtistForm(Form):
         ]
     )
     phone = StringField(
-        # TODO implement validation logic for state
-        'phone'
+        # [DONE] TODO implement validation logic for state
+        'phone', validators=[DataRequired(), validate_phone]
     )
     image_link = StringField(
         'image_link', validators=[URL(), Optional()]
@@ -222,8 +228,10 @@ class ArtistForm(Form):
         ]
     )
     facebook_link = StringField(
-        # TODO implement enum restriction
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[URL(), Optional()]
+    )
+    website = StringField(
+        'website', validators=[URL(), Optional()]
     )
     seeking_talent = BooleanField(
         'seeking_talent', default= False
@@ -232,4 +240,4 @@ class ArtistForm(Form):
         'seeking_description'
     )
 
-# TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
+# [DONE] TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
