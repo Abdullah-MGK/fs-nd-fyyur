@@ -1,10 +1,13 @@
 #----------------------------------------------------------------------------#
 # Imports
 #----------------------------------------------------------------------------#
-from app import db
 import babel
 import dateutil.parser
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+#from app import db
+
+db = SQLAlchemy()
 
 #----------------------------------------------------------------------------#
 # Models.
