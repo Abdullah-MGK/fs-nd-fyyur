@@ -50,7 +50,7 @@ class Venue(db.Model):
   website = db.Column(db.String(120))
   image_link = db.Column(db.String(500))
   facebook_link = db.Column(db.String(120))
-  shows = db.relationship('Show', backref='venue', lazy=True)
+  shows = db.relationship('Show', backref='venue', lazy=True, cascade="all, delete-orphan")
   seeking_talent = db.Column(db.Boolean)
   seeking_description = db.Column(db.String)
   
@@ -74,7 +74,7 @@ class Artist(db.Model):
   website = db.Column(db.String(120))
   image_link = db.Column(db.String(500))
   facebook_link = db.Column(db.String(120))
-  shows = db.relationship('Show', backref='artist', lazy=True)
+  shows = db.relationship('Show', backref='artist', lazy=True, cascade="all, delete-orphan")
   seeking_venue = db.Column(db.Boolean)
   seeking_description = db.Column(db.String)
   
@@ -92,8 +92,8 @@ class Show(db.Model):
   
   id = db.Column(db.Integer, primary_key=True)
   start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-  artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
-  venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
+  artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id', ondelete="CASCADE"), nullable=False)
+  venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id', ondelete="CASCADE"), nullable=False)
   
   def __repr__(self):
     return f'<id: {self.id}, start: {self.start_time}, artist: {self.artist_id}, venue: {self.venue_id}>'  
