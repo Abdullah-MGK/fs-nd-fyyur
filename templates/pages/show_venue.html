@@ -75,5 +75,48 @@
 	</div>
 </section>
 
-{% endblock %}
+<section>
+	<div class="row">
+		<div class="col-sm-12">
+			<button id="edit_venue" onclick="editVenue(this)" data-id="{{ venue.id }}" class="btn btn-primary btn-lg"
+			>Edit Venue</button>
+			<button id="delete_venue" onclick="deleteVenue(this)" data-id="{{ venue.id }}" class="btn btn-primary btn-lg"
+			>Delete Venue</button>
+		</div>
+	</div>
+</section>
 
+
+<script>
+
+function editVenue(e) {
+	const id = e.dataset.id
+	fetch(`/venues/${id}/edit`, {
+	method: 'GET'
+	})
+	.then(response => {
+		window.location.href = `/venues/${id}/edit`;
+	})
+	.catch(error => {
+		console.log(error);
+	})
+}
+
+function deleteVenue(e) {
+	const id = e.dataset.id
+	fetch(`/venues/${id}`,
+	{
+		method: 'DELETE'
+	})
+	.then(response => {
+		console.log(response)
+		window.location.href = `/venues`;
+	})
+	.catch(error => {
+		console.log(error);
+	})
+}
+
+</script>
+
+{% endblock %}
